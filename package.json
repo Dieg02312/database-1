@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/CarmenRojas123/database#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "nodemon": "^3.0.1"
   }
 }
