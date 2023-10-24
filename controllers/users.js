@@ -1,5 +1,5 @@
 const {request, response} = require('express');
-const usermodels = require('../models/users');
+const usermodels = require('../models/user');
 const pool=require('../db');
 
 
@@ -70,15 +70,15 @@ const addUser =async(req = request, res= response)=>{
         password,
         name,
         lastname,
-        phone_num ='',
+        phone_number ='',
         role_id,
-        id_active =1,
+        is_active =1,
     } = req.body;
     if (!username|| !email|| !password|| !name|| !lastname|| !role_id){
 res.status(400).json({msg:'Missing informarion'});
 return;
         }
-        const user= [username, email, password, name, lastname, phone_num, role_id, id_active ]
+        const user= [username, email, password, name, lastname, phone_number, role_id, is_active ]
 
 
     
@@ -122,7 +122,100 @@ res.status(500).json(error);
 }
 
 
+//Update del profe Julio 
 
+const updateUser=async(req, res)=>{
+  const {
+      username,
+      email,
+      password,
+      name,
+      lastname,
+      phone_number ,
+      role_id,
+      is_active ,
+  } = req.body;
+
+const {id} = req.params;
+let newUserData=[
+  username,
+  email,
+  password,
+  name,
+  lastname,
+  phone_number ,
+  role_id,
+  is_active   
+];
+let conn;
+try{
+  conn = await pool.getConnection();
+const [userExists]=await conn.query(
+  usermodels.getByID,
+  [id],
+  (err) => {if (err) throw err;}
+);
+if (!userExists || userExists.id_active === 0){
+  res.status(404).json({msg:'User not found'});
+  return;
+}
+
+const [usernameUser] = await conn.query(
+  usermodels.getByUsername,
+  [username],
+  (err) => {if (err) throw err;}
+);
+if (usernameUser){
+  res.status(409).json({msg:`User with username ${username} already exists`});
+  return;
+}
+
+const [emailUser] = await conn.query(
+  usermodels.getByEmail,
+  [email],
+  (err) => {if (err) throw err;}
+);
+if (emailUser){
+  res.status(409).json({msg:`User with email ${email} already exists`});
+  return;
+}
+
+const oldUserData = [
+  userExists.username,
+  userExists.email,
+  userExists.password,
+  userExists.name,
+  userExists.lastname,
+  userExists.phone_number ,
+  userExists.role_id,
+  userExists.is_active  
+];
+
+newUserData.forEach((userData, index)=> {
+  if (!userData){
+      newUserData[index] = oldUserData[index];
+  }
+})
+
+const userUpdate = await conn.query(
+  usermodels.updateUser,
+  [...newUserData, id],
+  (err) => {if (err) throw err;}
+);
+if(userUpdate.affecteRows === 0){
+  throw new Error ('User not updated');
+}
+res.json({msg:'User updated successfully'})
+}catch (error){
+      console.log(error);
+      res.status(500).json(error);
+  } finally{
+      if (conn) conn.end();
+  }
+}
+
+/*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const updateUser = async (req, res) => {
     const { id } = req.params;
@@ -164,7 +257,7 @@ const updateUser = async (req, res) => {
       }
   
       // Realiza la actualización de los campos permitidos
-      const allowedFields = ['username', 'email', 'password', 'name', 'lastname', 'phone_num', 'id_active','role_id'];
+      const allowedFields = ['username', 'email', 'password', 'name', 'lastname', 'phone_number', 'is_active','role_id'];
       const updateData = {};
   
       allowedFields.forEach((field) => {
@@ -186,9 +279,9 @@ const updateUser = async (req, res) => {
           updateData.password, // Actualizar contraseña
           updateData.name,
           updateData.lastname,
-          updateData.phone_num,
+          updateData.phone_number,
           updateData.role_id,
-          updateData.id_active,
+          updateData.is_active,
           id
         ]
       );
@@ -205,7 +298,8 @@ const updateUser = async (req, res) => {
       if (conn) conn.end();
     }
   };
-
+/////////////////////////////////////////////////////////////////////////////////////////// 
+*/
 
 const deleteUser = async (req, res)=>{
     let conn;
@@ -218,7 +312,7 @@ const deleteUser = async (req, res)=>{
             [id],
             (err) => {if (err) throw err;}
         );
-        if(!userExists || userExists.id_active === 0){
+        if(!userExists || userExists.is_active === 0){
             res.status(404).json({msg:'User not Found'});
             return;
         }

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const userRouter=require ('./routes/users')
+const userRouter=require ('./routes/user')
 class Server {
     constructor(){
         this.app = express(); //Se instancia Express

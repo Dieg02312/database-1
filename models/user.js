@@ -20,9 +20,9 @@ const usermodels = {
         password,
         name,
         lastname,
-        phone_num,
+        phone_number,
         role_id,
-        id_active
+        is_active
     )
     VALUES (
         ?,?,?,?,?,?,?,?
@@ -53,9 +53,9 @@ getByEmail:`
         password = ?,
         name = ?,
         lastname = ?,
-        phone_num = ?,
+        phone_number = ?,
         role_id = ?,
-        id_active = ?
+        is_active = ?
         WHERE 
         id =?
     `,
@@ -64,7 +64,7 @@ getByEmail:`
     UPDATE 
     user
     SET
-    id_active =0
+    is_active =0
     WHERE 
     id=?
     `,
